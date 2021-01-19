@@ -110,6 +110,10 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
     });
   }
 
+  ////    TODO: put a check for scroll offset
+  /// if(listController.offset == listController.position.maxScrollExtent){
+  ///     do not try to scroll,since already at the end of the list
+  /// }
   void scrolltoIndex(int x) {
     int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()];
     if (index != null) {
