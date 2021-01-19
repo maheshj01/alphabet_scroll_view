@@ -26,6 +26,7 @@
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+.metadata
 .packages
 .pub-cache/
 .pub/
@@ -39,3 +40,4 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+pubspec.lock
