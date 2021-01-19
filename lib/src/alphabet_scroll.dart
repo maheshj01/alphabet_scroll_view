@@ -122,6 +122,15 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
     }
   }
 
+  void onVerticalDrag(Offset offset) {
+    int index = getCurrentIndex(offset.dy);
+    setState(() {
+      selected = index;
+    });
+    scrolltoIndex(index);
+    widget.onChange(_filteredAlphabets.elementAt(index));
+  }
+
   final Map<String, int> firstIndexPosition = {};
   final key = GlobalKey();
   @override
@@ -145,20 +154,8 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: SingleChildScrollView(
               child: GestureDetector(
-                onVerticalDragStart: (z) {
-                  int index = getCurrentIndex(z.localPosition.dy);
-                  setState(() {
-                    selected = index;
-                  });
-                  scrolltoIndex(index);
-                },
-                onVerticalDragUpdate: (z) {
-                  int index = getCurrentIndex(z.localPosition.dy);
-                  setState(() {
-                    selected = index;
-                  });
-                  scrolltoIndex(index);
-                },
+                onVerticalDragStart: (z) => onVerticalDrag(z.localPosition),
+                onVerticalDragUpdate: (z) => onVerticalDrag(z.localPosition),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
