@@ -15,7 +15,7 @@ class AlphabetScroll extends StatefulWidget {
   AlphabetScroll(
       {Key key,
       @required this.list,
-      this.onChange,
+      // this.onChange,
       this.isAlphabetsFiltered = true,
       this.alphabetStyle,
       this.itemExtent = 40,
@@ -31,7 +31,7 @@ class AlphabetScroll extends StatefulWidget {
   final bool isAlphabetsFiltered;
 
   /// returns the current Item being Scrolled
-  final Function(String) onChange;
+  // final Function(String) onChange;
 
   Widget Function(BuildContext context, int index, String id) itemBuilder;
 
@@ -90,8 +90,7 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
   }
 
   int getCurrentIndex(double vPosition) {
-    final totalHeight = key.currentContext.size.height;
-    double kAlphabetHeight = 20;
+    double kAlphabetHeight = letterKey.currentContext.size.height;
     return (vPosition ~/ kAlphabetHeight);
   }
 
@@ -119,6 +118,7 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
     if (index != null) {
       listController.animateTo((widget.itemExtent * index),
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      // widget.onChange(_filteredAlphabets.elementAt(x));
     }
   }
 
@@ -128,11 +128,11 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
       selected = index;
     });
     scrolltoIndex(index);
-    widget.onChange(_filteredAlphabets.elementAt(index));
   }
 
   final Map<String, int> firstIndexPosition = {};
   final key = GlobalKey();
+  final letterKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -161,6 +161,7 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
                     children: List.generate(
                       _filteredAlphabets.length,
                       (x) => GestureDetector(
+                        key: x == 0 ? letterKey : null,
                         onTap: () {
                           setState(() {
                             selected = x;

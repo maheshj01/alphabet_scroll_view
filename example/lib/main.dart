@@ -69,14 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 );
               },
-              onChange: (x) {
-                print('Current Alphabet $x');
-              },
             ),
           ),
-          // Container(
-          //   height: 400,
-          // )
         ],
       ),
       floatingActionButton: FloatingActionButton(
