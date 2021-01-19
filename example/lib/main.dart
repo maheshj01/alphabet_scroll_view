@@ -48,25 +48,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: AlphabetScroll(
-        list: list.map((e) => AlphaModel(e)).toList(),
-        // isAlphabetsFiltered: false,
-        itemBuilder: (_, k, id) {
-          return Container(
-            color: Colors.grey.withOpacity(0.4),
-            margin: EdgeInsets.symmetric(vertical: 2),
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            child: Text(
-              '${id}',
-              style:
-                  TextStyle(fontSize: 15, color: Colors.black.withOpacity(0.7)),
+      body: Column(
+        children: [
+          Expanded(
+            child: AlphabetScroll(
+              list: list.map((e) => AlphaModel(e)).toList(),
+              // isAlphabetsFiltered: false,
+              itemExtent: 50,
+              itemBuilder: (_, k, id) {
+                return Container(
+                  color: Colors.grey.withOpacity(0.4),
+                  margin: EdgeInsets.symmetric(vertical: 2),
+                  alignment: Alignment.centerLeft,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                  child: Text(
+                    '${id}',
+                    style: TextStyle(
+                        fontSize: 15, color: Colors.black.withOpacity(0.7)),
+                  ),
+                );
+              },
+              onChange: (x) {
+                print('Current Alphabet $x');
+              },
             ),
-          );
-        },
-        onChange: (x) {
-          print('Current Alphabet $x');
-        },
+          ),
+          // Container(
+          //   height: 400,
+          // )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,

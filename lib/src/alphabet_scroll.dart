@@ -9,6 +9,8 @@ class AlphabetScroll extends StatefulWidget {
   /// and assigned an alphabet internally
   final List<AlphaModel> list;
 
+  /// max height of each Item
+  final double itemExtent;
   final TextStyle alphabetStyle;
   AlphabetScroll(
       {Key key,
@@ -16,6 +18,7 @@ class AlphabetScroll extends StatefulWidget {
       this.onChange,
       this.isAlphabetsFiltered = true,
       this.alphabetStyle,
+      this.itemExtent = 40,
       @required this.itemBuilder})
       : super(key: key);
 
@@ -88,7 +91,7 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
 
   int getCurrentIndex(double vPosition) {
     final totalHeight = key.currentContext.size.height;
-    double kAlphabetHeight = 24;
+    double kAlphabetHeight = 20;
     return (vPosition ~/ kAlphabetHeight);
   }
 
@@ -110,7 +113,7 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
   void scrolltoIndex(int x) {
     int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()];
     if (index != null) {
-      listController.animateTo((50.0 * index),
+      listController.animateTo((widget.itemExtent * index),
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     }
   }
@@ -126,7 +129,11 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
             controller: listController,
             scrollDirection: Axis.vertical,
             itemCount: _list.length,
-            itemBuilder: (_, x) => widget.itemBuilder(_, x, _list[x].key)),
+            itemBuilder: (_, x) {
+              return ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: widget.itemExtent),
+                  child: widget.itemBuilder(_, x, _list[x].key));
+            }),
         Align(
           alignment: Alignment.centerRight,
           child: Container(
@@ -164,10 +171,11 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
                               ? Colors.blue.withOpacity(0.8)
                               : null,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
+                              horizontal: 12, vertical: 2),
                           child: Text(
                             _filteredAlphabets[x].toUpperCase(),
                             style: TextStyle(
+                                fontSize: 12,
                                 color: selected == x
                                     ? Colors.white
                                     : Colors.black),
