@@ -3,6 +3,7 @@ description:
   A Scrollable ListView Widget with the dynamic vertical Alphabet List which
   you can drag and tap to scroll to the first item starting with that letter.
 version: 0.1.0
+homepage: https://github.com/maheshmnj/alphabet_scroll_view
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
