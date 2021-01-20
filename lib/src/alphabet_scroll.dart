@@ -118,7 +118,6 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
     int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()];
     final scrollToPostion = widget.itemExtent * index;
     if (index != null && !(scrollToPostion > maxScroll)) {
-      print('max=${maxScroll} scrolling to $scrollToPostion');
       listController.animateTo((widget.itemExtent * index),
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       // widget.onChange(_filteredAlphabets.elementAt(x));
@@ -127,6 +126,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
 
   void onVerticalDrag(Offset offset) {
     int index = getCurrentIndex(offset.dy);
+    if (index < 0 || index >= _filteredAlphabets.length) return;
     setState(() {
       selected = index;
     });
