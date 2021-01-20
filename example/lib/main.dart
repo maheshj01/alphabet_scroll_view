@@ -38,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  int selectedIndex;
   @override
   Widget build(BuildContext context) {
     List<String> list =
@@ -56,16 +57,21 @@ class _MyHomePageState extends State<MyHomePage> {
               // isAlphabetsFiltered: false,
               itemExtent: 50,
               itemBuilder: (_, k, id) {
-                return Container(
-                  color: Colors.grey.withOpacity(0.4),
-                  margin: EdgeInsets.symmetric(vertical: 2),
-                  alignment: Alignment.centerLeft,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                  child: Text(
-                    '${id}',
-                    style: TextStyle(
-                        fontSize: 15, color: Colors.black.withOpacity(0.7)),
+                return Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: ListTile(
+                    title: Text('$id'),
+                    subtitle: Text('Secondary text'),
+                    leading: Icon(Icons.label),
+                    trailing: Radio<bool>(
+                      value: false,
+                      groupValue: selectedIndex != k,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedIndex = k;
+                        });
+                      },
+                    ),
                   ),
                 );
               },
@@ -73,10 +79,15 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton(
+            onPressed: _incrementCounter,
+            tooltip: 'Increment',
+            child: Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
