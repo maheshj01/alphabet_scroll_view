@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:alphabet_scroll/alphabet_scroll.dart';
+import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           Expanded(
-            child: AlphabetScroll(
+            child: AlphabetScrollView(
               list: list.map((e) => AlphaModel(e)).toList(),
               // isAlphabetsFiltered: false,
               itemExtent: 50,

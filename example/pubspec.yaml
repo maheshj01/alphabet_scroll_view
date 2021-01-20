@@ -29,7 +29,7 @@ dependencies:
   cupertino_icons: ^1.0.0
 
 dev_dependencies:
-  alphabet_scroll:
+  alphabet_scroll_view:
     path: ../
   flutter_test:
     sdk: flutter
