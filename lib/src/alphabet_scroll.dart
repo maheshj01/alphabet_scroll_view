@@ -1,23 +1,28 @@
-import 'package:alphabet_scroll/src/meta.dart';
+import 'package:alphabet_scroll_view/src/meta.dart';
 import 'package:flutter/material.dart';
 
-class AlphabetScroll extends StatefulWidget {
+class AlphabetScrollView extends StatefulWidget {
   /// List of Items should be non Empty
-  /// should contain List of Strings
-  /// if String is a non alphabet
-  /// it will be considered based on its ascii value
-  /// and assigned an alphabet internally
+  /// and you must map your
+  /// ```
+  ///  List<T> to List<AlphaModel>
+  ///  e.g
+  ///  List<UserModel> _list;
+  ///  _list.map((user)=>AlphaModel(user.name)).toList();
+  /// ```
+  /// where each item of this ```list``` will be mapped to
+  /// each widget returned by ItemBuilder to uniquely identify
+  /// that widget.
   final List<AlphaModel> list;
 
-  /// max height of each Item
+  /// ```itemExtent``` specifies the max height of the widget returned by
+  /// itemBuilder if not specified defaults to 40
   final double itemExtent;
-  final TextStyle alphabetStyle;
-  AlphabetScroll(
+
+  AlphabetScrollView(
       {Key key,
       @required this.list,
-      // this.onChange,
       this.isAlphabetsFiltered = true,
-      this.alphabetStyle,
       this.itemExtent = 40,
       @required this.itemBuilder})
       : super(key: key);
@@ -25,21 +30,20 @@ class AlphabetScroll extends StatefulWidget {
   /// defaults to ```true```
   /// if specified as ```false```
   /// all alphabets will be shown regardless of
-  /// whether the item in the [list] exists with
+  /// whether the item in the [list] exists starting with
   /// that alphabet.
 
   final bool isAlphabetsFiltered;
 
-  /// returns the current Item being Scrolled
-  // final Function(String) onChange;
-
-  Widget Function(BuildContext context, int index, String id) itemBuilder;
+  /// The itemBuilder must return a non-null widget and the third paramter id specifies
+  /// the string mapped to this widget form the ```[list]``` passed.
+  Widget Function(BuildContext, int, String) itemBuilder;
 
   @override
-  _AlphabetScrollState createState() => _AlphabetScrollState();
+  _AlphabetScrollViewState createState() => _AlphabetScrollViewState();
 }
 
-class _AlphabetScrollState extends State<AlphabetScroll> {
+class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   Future<void> init() {
     widget.list
         .sort((x, y) => x.key.toLowerCase().compareTo(y.key.toLowerCase()));
@@ -67,9 +71,8 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     init();
+    super.initState();
   }
 
   ScrollController listController = ScrollController();
@@ -78,8 +81,7 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
   List<String> _filteredAlphabets = [];
 
   @override
-  void didUpdateWidget(covariant AlphabetScroll oldWidget) {
-    // TODO: implement didUpdateWidget
+  void didUpdateWidget(covariant AlphabetScrollView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.list != widget.list ||
         oldWidget.isAlphabetsFiltered != widget.isAlphabetsFiltered) {
@@ -95,8 +97,10 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
   }
 
   /// calculates and Maintains a map of
-  /// letter:index of the position the first Item in list
+  /// [letter:index] of the position the first Item in list
   /// starting with that letter.
+  /// This helps to avoid recomputing the position to scroll to
+  /// on each Scroll.
   void calculateFirstIndex() {
     _filteredAlphabets.forEach((letter) {
       AlphaModel firstElement = _list.firstWhere(
@@ -109,13 +113,12 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
     });
   }
 
-  ////    TODO: put a check for scroll offset
-  /// if(listController.offset == listController.position.maxScrollExtent){
-  ///     do not try to scroll,since already at the end of the list
-  /// }
   void scrolltoIndex(int x) {
+    final maxScroll = listController.position.maxScrollExtent;
     int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()];
-    if (index != null) {
+    final scrollToPostion = widget.itemExtent * index;
+    if (index != null && !(scrollToPostion > maxScroll)) {
+      print('max=${maxScroll} scrolling to $scrollToPostion');
       listController.animateTo((widget.itemExtent * index),
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       // widget.onChange(_filteredAlphabets.elementAt(x));
@@ -135,7 +138,6 @@ class _AlphabetScrollState extends State<AlphabetScroll> {
   final letterKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Stack(
       children: [
         ListView.builder(
