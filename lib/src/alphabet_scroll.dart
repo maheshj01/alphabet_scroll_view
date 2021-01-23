@@ -155,7 +155,9 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                   child: widget.itemBuilder(_, x, _list[x].key));
             }),
         Align(
-          alignment: Alignment.centerRight,
+          alignment: widget.alignment == LetterAlignment.left
+              ? Alignment.centerLeft
+              : Alignment.centerRight,
           child: Container(
             key: key,
             padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -167,38 +169,30 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       _filteredAlphabets.length,
-                      (x) => Row(
-                        mainAxisAlignment:
-                            widget.alignment == LetterAlignment.left
-                                ? MainAxisAlignment.start
-                                : MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            key: x == 0 ? letterKey : null,
-                            onTap: () {
-                              setState(() {
-                                selected = x;
-                              });
-                              scrolltoIndex(x);
-                            },
-                            child: Container(
-                              color: selected == x
-                                  ? Theme.of(context).primaryColor
-                                  // Colors.blue.withOpacity(0.8)
-                                  : null,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 2),
-                              child: Text(
-                                _filteredAlphabets[x].toUpperCase(),
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: selected == x
-                                        ? Colors.white
-                                        : Colors.black),
-                              ),
-                            ),
+                      (x) => GestureDetector(
+                        key: x == 0 ? letterKey : null,
+                        onTap: () {
+                          setState(() {
+                            selected = x;
+                          });
+                          scrolltoIndex(x);
+                        },
+                        child: Container(
+                          color: selected == x
+                              ? Theme.of(context).primaryColor
+                              // Colors.blue.withOpacity(0.8)
+                              : null,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 2),
+                          child: Text(
+                            _filteredAlphabets[x].toUpperCase(),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: selected == x
+                                    ? Colors.white
+                                    : Colors.black),
                           ),
-                        ],
+                        ),
                       ),
                     )),
               ),

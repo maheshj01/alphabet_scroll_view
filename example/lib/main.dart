@@ -134,15 +134,32 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
+          // Expanded(
+          //     child: ListView.builder(
+          //   itemBuilder: (_, x) => ListTile(
+          //     title: Text('$x'),
+          //     subtitle: Text('Secondary text'),
+          //     leading: Icon(Icons.label),
+          //     trailing: Radio<bool>(
+          //       value: false,
+          //       groupValue: x != 2,
+          //       onChanged: (value) {
+          //         setState(() {
+          //           selectedIndex = 2;
+          //         });
+          //       },
+          //     ),
+          //   ),
+          // ))
           Expanded(
             child: AlphabetScrollView(
               list: list.map((e) => AlphaModel(e)).toList(),
               // isAlphabetsFiltered: false,
-              alignment: LetterAlignment.left,
+              alignment: LetterAlignment.right,
               itemExtent: 50,
               itemBuilder: (_, k, id) {
                 return Padding(
-                  padding: const EdgeInsets.only(left: 20),
+                  padding: const EdgeInsets.only(right: 20),
                   child: ListTile(
                     title: Text('$id'),
                     subtitle: Text('Secondary text'),
@@ -160,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-          ),
+          )
         ],
       ),
       floatingActionButton: Row(
