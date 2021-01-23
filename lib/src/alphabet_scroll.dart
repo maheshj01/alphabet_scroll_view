@@ -1,6 +1,8 @@
 import 'package:alphabet_scroll_view/src/meta.dart';
 import 'package:flutter/material.dart';
 
+enum LetterAlignment { left, right }
+
 class AlphabetScrollView extends StatefulWidget {
   /// List of Items should be non Empty
   /// and you must map your
@@ -19,9 +21,12 @@ class AlphabetScrollView extends StatefulWidget {
   /// itemBuilder if not specified defaults to 40
   final double itemExtent;
 
+  final LetterAlignment alignment;
+
   AlphabetScrollView(
       {Key key,
       @required this.list,
+      this.alignment = LetterAlignment.right,
       this.isAlphabetsFiltered = true,
       this.itemExtent = 40,
       @required this.itemBuilder})
@@ -162,29 +167,38 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       _filteredAlphabets.length,
-                      (x) => GestureDetector(
-                        key: x == 0 ? letterKey : null,
-                        onTap: () {
-                          setState(() {
-                            selected = x;
-                          });
-                          scrolltoIndex(x);
-                        },
-                        child: Container(
-                          color: selected == x
-                              ? Colors.blue.withOpacity(0.8)
-                              : null,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 2),
-                          child: Text(
-                            _filteredAlphabets[x].toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: selected == x
-                                    ? Colors.white
-                                    : Colors.black),
+                      (x) => Row(
+                        mainAxisAlignment:
+                            widget.alignment == LetterAlignment.left
+                                ? MainAxisAlignment.start
+                                : MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            key: x == 0 ? letterKey : null,
+                            onTap: () {
+                              setState(() {
+                                selected = x;
+                              });
+                              scrolltoIndex(x);
+                            },
+                            child: Container(
+                              color: selected == x
+                                  ? Theme.of(context).primaryColor
+                                  // Colors.blue.withOpacity(0.8)
+                                  : null,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 2),
+                              child: Text(
+                                _filteredAlphabets[x].toUpperCase(),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: selected == x
+                                        ? Colors.white
+                                        : Colors.black),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     )),
               ),

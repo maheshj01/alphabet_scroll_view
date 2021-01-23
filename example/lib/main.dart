@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
@@ -138,10 +138,11 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AlphabetScrollView(
               list: list.map((e) => AlphaModel(e)).toList(),
               // isAlphabetsFiltered: false,
+              alignment: LetterAlignment.left,
               itemExtent: 50,
               itemBuilder: (_, k, id) {
                 return Padding(
-                  padding: const EdgeInsets.only(right: 20),
+                  padding: const EdgeInsets.only(left: 20),
                   child: ListTile(
                     title: Text('$id'),
                     subtitle: Text('Secondary text'),
