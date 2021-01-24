@@ -21,18 +21,16 @@ Compatible with All platforms and all screens of different Sizes.
 
 ```
 dependencies:
-  alphabet_scroll_view: ^0.1.0
+  alphabet_scroll_view: ^0.2.0
 ```
-
-
 
 - Import the package
   ​
+
 ```
 import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
 
 ```
-
 
 ### Example Usage
 
