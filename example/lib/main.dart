@@ -138,24 +138,34 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AlphabetScrollView(
               list: list.map((e) => AlphaModel(e)).toList(),
               // isAlphabetsFiltered: false,
-              alignment: LetterAlignment.left,
+              alignment: LetterAlignment.right,
               itemExtent: 50,
-              waterMark: (value) => Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).primaryColor,
-                ),
+              waterMark: (value) => Stack(
                 alignment: Alignment.center,
-                child: Text(
-                  '$value'.toUpperCase(),
-                  style: TextStyle(fontSize: 20, color: Colors.white),
-                ),
+                children: [
+                  Icon(
+                    Icons.star,
+                    size: 50,
+                    color: Colors.red,
+                  ),
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      // color: Theme.of(context).primaryColor,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$value'.toUpperCase(),
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
               itemBuilder: (_, k, id) {
                 return Padding(
-                  padding: const EdgeInsets.only(left: 20),
+                  padding: const EdgeInsets.only(right: 20),
                   child: ListTile(
                     title: Text('$id'),
                     subtitle: Text('Secondary text'),
