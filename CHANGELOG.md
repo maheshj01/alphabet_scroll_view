@@ -7,6 +7,6 @@
 Adds Support to
 
 - align Alphabet List on left or Right
-- show custom Widget when input in contact with the alphabet List.
+- show custom waterMark Widget when input in contact with the alphabet List.
 - improved Scroll Accuracy
 - minor fixes
