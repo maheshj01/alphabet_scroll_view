@@ -134,23 +134,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          // Expanded(
-          //     child: ListView.builder(
-          //   itemBuilder: (_, x) => ListTile(
-          //     title: Text('$x'),
-          //     subtitle: Text('Secondary text'),
-          //     leading: Icon(Icons.label),
-          //     trailing: Radio<bool>(
-          //       value: false,
-          //       groupValue: x != 2,
-          //       onChanged: (value) {
-          //         setState(() {
-          //           selectedIndex = 2;
-          //         });
-          //       },
-          //     ),
-          //   ),
-          // ))
           Expanded(
             child: AlphabetScrollView(
               list: list.map((e) => AlphaModel(e)).toList(),
@@ -160,8 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
               waterMark: (value) => Container(
                 height: 50,
                 width: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).primaryColor,
+                ),
                 alignment: Alignment.center,
-                color: Theme.of(context).primaryColor,
                 child: Text(
                   '$value'.toUpperCase(),
                   style: TextStyle(fontSize: 20, color: Colors.white),
@@ -173,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: ListTile(
                     title: Text('$id'),
                     subtitle: Text('Secondary text'),
-                    leading: Icon(Icons.label),
+                    leading: Icon(Icons.person),
                     trailing: Radio<bool>(
                       value: false,
                       groupValue: selectedIndex != k,
