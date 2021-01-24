@@ -4,6 +4,16 @@ import 'package:flutter/material.dart';
 enum LetterAlignment { left, right }
 
 class AlphabetScrollView extends StatefulWidget {
+  AlphabetScrollView(
+      {Key key,
+      @required this.list,
+      this.alignment = LetterAlignment.right,
+      this.isAlphabetsFiltered = true,
+      this.waterMark,
+      this.itemExtent = 40,
+      @required this.itemBuilder})
+      : super(key: key);
+
   /// List of Items should be non Empty
   /// and you must map your
   /// ```
@@ -18,23 +28,13 @@ class AlphabetScrollView extends StatefulWidget {
   final List<AlphaModel> list;
 
   /// ```itemExtent``` specifies the max height of the widget returned by
-  /// itemBuilder if not specified defaults to 40
+  /// itemBuilder if not specified defaults to 40.0
   final double itemExtent;
 
   /// Alignment for the Alphabet List
   /// can be aligned on either left/right side
   /// of the screen
   final LetterAlignment alignment;
-
-  AlphabetScrollView(
-      {Key key,
-      @required this.list,
-      this.alignment = LetterAlignment.right,
-      this.isAlphabetsFiltered = true,
-      this.waterMark,
-      this.itemExtent = 40,
-      @required this.itemBuilder})
-      : super(key: key);
 
   /// defaults to ```true```
   /// if specified as ```false```
@@ -64,6 +64,7 @@ class AlphabetScrollView extends StatefulWidget {
 
   /// The itemBuilder must return a non-null widget and the third paramter id specifies
   /// the string mapped to this widget form the ```[list]``` passed.
+
   Widget Function(BuildContext, int, String) itemBuilder;
 
   @override
