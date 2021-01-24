@@ -60,6 +60,15 @@ AlphabetScrollView(
     ),
 ```
 
+### On the Roadmap
+
+- Add support to customize alphabetItemBuilder
+
+  to expose `Widget Function (string letter,int index,bool isSelected) alphabetItemBuilder`
+
+- Animate The waterMark with some sort of fade Transition which lasts for 200-500 ms when the pointer leaves the contact with the screen.
+- Improve the doc comments and the readme file.
+
 ### Contributing
 
 You are welcome to contribute to this package,contribution doesnt necessarily mean sending a pull request it could be
