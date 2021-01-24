@@ -155,11 +155,21 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AlphabetScrollView(
               list: list.map((e) => AlphaModel(e)).toList(),
               // isAlphabetsFiltered: false,
-              alignment: LetterAlignment.right,
+              alignment: LetterAlignment.left,
               itemExtent: 50,
+              waterMark: (value) => Container(
+                height: 50,
+                width: 50,
+                alignment: Alignment.center,
+                color: Theme.of(context).primaryColor,
+                child: Text(
+                  '$value'.toUpperCase(),
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ),
               itemBuilder: (_, k, id) {
                 return Padding(
-                  padding: const EdgeInsets.only(right: 20),
+                  padding: const EdgeInsets.only(left: 20),
                   child: ListTile(
                     title: Text('$id'),
                     subtitle: Text('Secondary text'),
