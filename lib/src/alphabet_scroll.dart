@@ -71,7 +71,7 @@ class AlphabetScrollView extends StatefulWidget {
 }
 
 class _AlphabetScrollViewState extends State<AlphabetScrollView> {
-  Future<void> init() {
+  void init() {
     widget.list
         .sort((x, y) => x.key.toLowerCase().compareTo(y.key.toLowerCase()));
     _list = widget.list;
