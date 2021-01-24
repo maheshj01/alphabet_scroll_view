@@ -1,3 +1,5 @@
+# [alphabet_scroll_view: ^0.2.0](https://pub.dev/packages/alphabet_scroll_view)
+
 A Scrollable ListView Widget with the dynamic vertical Alphabet List on the Side which you can drag and tap to scroll to the first item starting with that letter in the list.
 
 ## Features
@@ -109,8 +111,8 @@ waterMark: (value) => Stack(
 
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/31410839/105623290-983c3d00-5e3e-11eb-9012-0f0e75fde074.gif)
 
-
 Refer the [complete example here](https://github.com/maheshmnj/alphabet_scroll_view/blob/master/example/lib/main.dart)
+
 ### Contributing
 
 You are welcome to contribute to this package,contribution doesnt necessarily mean sending a pull request it could be
