@@ -63,7 +63,7 @@ class AlphabetScrollView extends StatefulWidget {
   final Widget Function(String) waterMark;
 
   /// The itemBuilder must return a non-null widget and the third paramter id specifies
-  /// the string mapped to this widget form the ```[list]``` passed.
+  /// the string mapped to this widget from the ```[list]``` passed.
 
   Widget Function(BuildContext, int, String) itemBuilder;
 
@@ -100,14 +100,23 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   @override
   void initState() {
     init();
+    if (listController.hasClients) {
+      maxScroll = listController.position.maxScrollExtent;
+    }
     super.initState();
   }
 
   ScrollController listController = ScrollController();
-  int selected = 0;
-  List<AlphaModel> _list = [];
+  final _selectedIndexNotifier = ValueNotifier<int>(0);
+  final positionNotifer = ValueNotifier<Offset>(Offset(0, 0));
+  final Map<String, int> firstIndexPosition = {};
   List<String> _filteredAlphabets = [];
+  final letterKey = GlobalKey();
+  List<AlphaModel> _list = [];
   bool isLoading = false;
+  bool isFocused = false;
+  final key = GlobalKey();
+
   @override
   void didUpdateWidget(covariant AlphabetScrollView oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -125,7 +134,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   }
 
   /// calculates and Maintains a map of
-  /// [letter:index] of the position the first Item in list
+  /// [letter:index] of the position of the first Item in list
   /// starting with that letter.
   /// This helps to avoid recomputing the position to scroll to
   /// on each Scroll.
@@ -142,38 +151,34 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   }
 
   void scrolltoIndex(int x) {
-    final maxScroll = listController.position.maxScrollExtent;
     int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()];
     final scrollToPostion = widget.itemExtent * index;
-    if (index != null && !(scrollToPostion > maxScroll)) {
-      listController.animateTo((widget.itemExtent * index),
+    if (index != null) {
+      listController.animateTo((scrollToPostion),
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       // widget.onChange(_filteredAlphabets.elementAt(x));
     }
-    getSelectedLetterPosition();
+    final position = getSelectedLetterPosition();
+    positionNotifer.value = position;
   }
 
   void onVerticalDrag(Offset offset) {
     int index = getCurrentIndex(offset.dy);
     if (index < 0 || index >= _filteredAlphabets.length) return;
+    _selectedIndexNotifier.value = index;
     setState(() {
-      selected = index;
       isFocused = true;
     });
     scrolltoIndex(index);
   }
 
-  getSelectedLetterPosition() {
+  Offset getSelectedLetterPosition() {
     final RenderBox renderBoxRed = letterKey.currentContext.findRenderObject();
     final letterPosition = renderBoxRed.localToGlobal(Offset.zero);
-    positionNotifer.value = letterPosition;
+    return letterPosition;
   }
 
-  final Map<String, int> firstIndexPosition = {};
-  final key = GlobalKey();
-  final letterKey = GlobalKey();
-  bool isFocused = false;
-  final positionNotifer = ValueNotifier<Offset>(Offset(0, 0));
+  double maxScroll;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -182,6 +187,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
             controller: listController,
             scrollDirection: Axis.vertical,
             itemCount: _list.length,
+            physics: ClampingScrollPhysics(),
             itemBuilder: (_, x) {
               return ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: widget.itemExtent),
@@ -203,32 +209,35 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                     isFocused = false;
                   });
                 },
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      _filteredAlphabets.length,
-                      (x) => GestureDetector(
-                        key: x == selected ? letterKey : null,
-                        onTap: () {
-                          setState(() {
-                            selected = x;
-                          });
-                          scrolltoIndex(x);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 2),
-                          child: Text(
-                            _filteredAlphabets[x].toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: selected == x
-                                    ? FontWeight.bold
-                                    : FontWeight.normal),
-                          ),
-                        ),
-                      ),
-                    )),
+                child: ValueListenableBuilder<int>(
+                    valueListenable: _selectedIndexNotifier,
+                    builder: (context, int selected, Widget child) {
+                      return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            _filteredAlphabets.length,
+                            (x) => GestureDetector(
+                              key: x == selected ? letterKey : null,
+                              onTap: () {
+                                _selectedIndexNotifier.value = x;
+                                scrolltoIndex(x);
+                                print(positionNotifer.value.dy);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 2),
+                                child: Text(
+                                  _filteredAlphabets[x].toUpperCase(),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: selected == x
+                                          ? FontWeight.bold
+                                          : FontWeight.normal),
+                                ),
+                              ),
+                            ),
+                          ));
+                    }),
               ),
             ),
           ),
@@ -243,10 +252,11 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                           widget.alignment == LetterAlignment.right ? 40 : null,
                       left:
                           widget.alignment == LetterAlignment.left ? 40 : null,
-                      top: position.dy - widget.itemExtent - 20,
+                      top: position.dy - widget.itemExtent * 2,
                       child: widget.waterMark == null
                           ? Container()
-                          : widget.waterMark(_filteredAlphabets[selected]));
+                          : widget.waterMark(_filteredAlphabets[
+                              _selectedIndexNotifier.value]));
                 })
       ],
     );
