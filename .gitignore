@@ -29,6 +29,7 @@
 .metadata
 .pub-cache/
 .pub/
+pubspec.lock
 build/
 
 # Android related
@@ -101,3 +102,5 @@ macos/**/Pods/
 
 # Xcode-related
 macos/**/xcuserdata/
+
+example/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata
