@@ -1,6 +1,6 @@
-## [0.1.0] - 20 Jan 2021
+## [0.3.0] - 1 April 2021
 
-- Initial Release.
+- Migrate to Null safety.
 
 ## [0.2.0] - 24 Jan 2021
 
@@ -10,3 +10,7 @@ Adds Support to
 - show custom waterMark Widget when input in contact with the alphabet List.
 - improved Scroll Accuracy
 - minor fixes
+
+## [0.1.0] - 20 Jan 2021
+
+- Initial Release.

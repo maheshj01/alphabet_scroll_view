@@ -1,17 +1,18 @@
 import 'package:alphabet_scroll_view/src/meta.dart';
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 
 enum LetterAlignment { left, right }
 
 class AlphabetScrollView extends StatefulWidget {
   AlphabetScrollView(
-      {Key key,
-      @required this.list,
+      {Key? key,
+      required this.list,
       this.alignment = LetterAlignment.right,
       this.isAlphabetsFiltered = true,
       this.waterMark,
       this.itemExtent = 40,
-      @required this.itemBuilder})
+      required this.itemBuilder})
       : super(key: key);
 
   /// List of Items should be non Empty
@@ -60,7 +61,7 @@ class AlphabetScrollView extends StatefulWidget {
   ///      )
   /// ```
 
-  final Widget Function(String) waterMark;
+  final Widget Function(String)? waterMark;
 
   /// The itemBuilder must return a non-null widget and the third paramter id specifies
   /// the string mapped to this widget from the ```[list]``` passed.
@@ -82,9 +83,8 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
     if (widget.isAlphabetsFiltered) {
       List<String> temp = [];
       alphabets.forEach((letter) {
-        AlphaModel firstAlphabetElement = _list.firstWhere(
-            (item) => item.key.toLowerCase().startsWith(letter.toLowerCase()),
-            orElse: () => null);
+        AlphaModel? firstAlphabetElement = _list.firstWhereOrNull(
+            (item) => item.key.toLowerCase().startsWith(letter.toLowerCase()));
         if (firstAlphabetElement != null) {
           temp.add(letter);
         }
@@ -129,7 +129,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   }
 
   int getCurrentIndex(double vPosition) {
-    double kAlphabetHeight = letterKey.currentContext.size.height;
+    double kAlphabetHeight = letterKey.currentContext!.size!.height;
     return (vPosition ~/ kAlphabetHeight);
   }
 
@@ -140,9 +140,8 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   /// on each Scroll.
   void calculateFirstIndex() {
     _filteredAlphabets.forEach((letter) {
-      AlphaModel firstElement = _list.firstWhere(
-          (item) => item.key.toLowerCase().startsWith(letter),
-          orElse: () => null);
+      AlphaModel? firstElement = _list.firstWhereOrNull(
+          (item) => item.key.toLowerCase().startsWith(letter));
       if (firstElement != null) {
         int index = _list.indexOf(firstElement);
         firstIndexPosition[letter] = index;
@@ -151,7 +150,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   }
 
   void scrolltoIndex(int x) {
-    int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()];
+    int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()]!;
     final scrollToPostion = widget.itemExtent * index;
     if (index != null) {
       listController.animateTo((scrollToPostion),
@@ -173,12 +172,12 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   }
 
   Offset getSelectedLetterPosition() {
-    final RenderBox renderBoxRed = letterKey.currentContext.findRenderObject();
+    final RenderBox renderBoxRed = letterKey.currentContext!.findRenderObject() as RenderBox;
     final letterPosition = renderBoxRed.localToGlobal(Offset.zero);
     return letterPosition;
   }
 
-  double maxScroll;
+  double? maxScroll;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -211,7 +210,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                 },
                 child: ValueListenableBuilder<int>(
                     valueListenable: _selectedIndexNotifier,
-                    builder: (context, int selected, Widget child) {
+                    builder: (context, int selected, Widget? child) {
                       return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
@@ -246,7 +245,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
             ? Container()
             : ValueListenableBuilder<Offset>(
                 valueListenable: positionNotifer,
-                builder: (BuildContext context, Offset position, Widget child) {
+                builder: (BuildContext context, Offset position, Widget? child) {
                   return Positioned(
                       right:
                           widget.alignment == LetterAlignment.right ? 40 : null,
@@ -255,7 +254,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                       top: position.dy - widget.itemExtent * 2,
                       child: widget.waterMark == null
                           ? Container()
-                          : widget.waterMark(_filteredAlphabets[
+                          : widget.waterMark!(_filteredAlphabets[
                               _selectedIndexNotifier.value]));
                 })
       ],
@@ -265,7 +264,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
 
 class AlphaModel {
   final String key;
-  final String secondaryKey;
+  final String? secondaryKey;
 
   AlphaModel(this.key, {this.secondaryKey});
 }
