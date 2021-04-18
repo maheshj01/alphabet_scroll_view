@@ -134,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
               // isAlphabetsFiltered: false,
               alignment: LetterAlignment.right,
               itemExtent: 50,
-              waterMark: (value) => Stack(
+              overlayWidget: (value) => Stack(
                 alignment: Alignment.center,
                 children: [
                   Icon(
