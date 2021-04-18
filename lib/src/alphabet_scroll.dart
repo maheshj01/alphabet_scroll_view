@@ -149,16 +149,14 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
     });
   }
 
-  void scrolltoIndex(int x) {
+  void scrolltoIndex(int x, Offset offset) {
     int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()]!;
     final scrollToPostion = widget.itemExtent * index;
     if (index != null) {
       listController.animateTo((scrollToPostion),
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-      // widget.onChange(_filteredAlphabets.elementAt(x));
     }
-    final position = getSelectedLetterPosition();
-    positionNotifer.value = position;
+    positionNotifer.value = offset;
   }
 
   void onVerticalDrag(Offset offset) {
@@ -168,13 +166,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
     setState(() {
       isFocused = true;
     });
-    scrolltoIndex(index);
-  }
-
-  Offset getSelectedLetterPosition() {
-    final RenderBox renderBoxRed = letterKey.currentContext!.findRenderObject() as RenderBox;
-    final letterPosition = renderBoxRed.localToGlobal(Offset.zero);
-    return letterPosition;
+    scrolltoIndex(index, offset);
   }
 
   double? maxScroll;
@@ -219,8 +211,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                               key: x == selected ? letterKey : null,
                               onTap: () {
                                 _selectedIndexNotifier.value = x;
-                                scrolltoIndex(x);
-                                print(positionNotifer.value.dy);
+                                scrolltoIndex(x, positionNotifer.value);
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -245,13 +236,14 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
             ? Container()
             : ValueListenableBuilder<Offset>(
                 valueListenable: positionNotifer,
-                builder: (BuildContext context, Offset position, Widget? child) {
+                builder:
+                    (BuildContext context, Offset position, Widget? child) {
                   return Positioned(
                       right:
                           widget.alignment == LetterAlignment.right ? 40 : null,
                       left:
                           widget.alignment == LetterAlignment.left ? 40 : null,
-                      top: position.dy - widget.itemExtent * 2,
+                      top: position.dy,
                       child: widget.waterMark == null
                           ? Container()
                           : widget.waterMark!(_filteredAlphabets[
