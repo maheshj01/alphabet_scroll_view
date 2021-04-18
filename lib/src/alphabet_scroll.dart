@@ -10,7 +10,7 @@ class AlphabetScrollView extends StatefulWidget {
       required this.list,
       this.alignment = LetterAlignment.right,
       this.isAlphabetsFiltered = true,
-      this.waterMark,
+      this.overlayWidget,
       this.itemExtent = 40,
       required this.itemBuilder})
       : super(key: key);
@@ -48,7 +48,7 @@ class AlphabetScrollView extends StatefulWidget {
   /// Widget to show beside the selected alphabet
   /// if not specified it will be hidden.
   /// ```
-  /// waterMark:(value)=>
+  /// overlayWidget:(value)=>
   ///    Container(
   ///       height: 50,
   ///       width: 50,
@@ -61,7 +61,7 @@ class AlphabetScrollView extends StatefulWidget {
   ///      )
   /// ```
 
-  final Widget Function(String)? waterMark;
+  final Widget Function(String)? overlayWidget;
 
   /// The itemBuilder must return a non-null widget and the third paramter id specifies
   /// the string mapped to this widget from the ```[list]``` passed.
@@ -244,9 +244,9 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                       left:
                           widget.alignment == LetterAlignment.left ? 40 : null,
                       top: position.dy,
-                      child: widget.waterMark == null
+                      child: widget.overlayWidget == null
                           ? Container()
-                          : widget.waterMark!(_filteredAlphabets[
+                          : widget.overlayWidget!(_filteredAlphabets[
                               _selectedIndexNotifier.value]));
                 })
       ],

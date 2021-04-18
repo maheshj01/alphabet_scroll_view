@@ -1,3 +1,8 @@
+<!-- ## [0.4.0] - 1 April 2021
+
+- Improve overlay widget positioning.
+- renamed the "waterMark" property to "overlayWidget" -->
+
 ## [0.3.0] - 1 April 2021
 
 - Migrate to Null safety.
@@ -7,7 +12,7 @@
 Adds Support to
 
 - align Alphabet List on left or Right
-- show custom waterMark Widget when input in contact with the alphabet List.
+- show custom overlay Widget when input in contact with the alphabet List.
 - improved Scroll Accuracy
 - minor fixes
 

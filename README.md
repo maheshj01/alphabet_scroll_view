@@ -5,7 +5,7 @@ A Scrollable ListView Widget with the dynamic vertical Alphabet List on the Side
 ## Features
 
 - Responsive on all screens of different Sizes and runs on all Flutter supported platforms
-- show your own widget(`waterMark`) when pointer is in focus with Screen
+- show your own widget(`overlayWidget`) when pointer is in focus with Screen
 - Align the alphabet list on the left or right
 - Tap or drag to scroll to particular Alphabet.
 
@@ -60,12 +60,12 @@ AlphabetScrollView(
     ),
 ```
 
-### Customize your waterMark
+### Customize your overlay widget
 
 <img width="552" alt="Screenshot 2021-01-24 at 1 12 37 PM" src="https://user-images.githubusercontent.com/31410839/105624279-9fffdf80-5e46-11eb-8900-bcb99ddf7220.png">
 
 ```
-waterMark: (value) => Stack(
+overlayWidget: (value) => Stack(
                 alignment: Alignment.center,
                 children: [
                   Icon(
@@ -92,7 +92,7 @@ waterMark: (value) => Stack(
 <img width="549" alt="Screenshot 2021-01-24 at 1 09 55 PM" src="https://user-images.githubusercontent.com/31410839/105624283-a2fad000-5e46-11eb-9707-3c072c07a2d7.png">
 
 ```
- waterMark: (value) => Container(
+ overlayWidget: (value) => Container(
                     height: 50,
                     width: 50,
                     decoration: BoxDecoration(
@@ -107,7 +107,7 @@ waterMark: (value) => Stack(
                   ),
 ```
 
-### WaterMark in Action
+### Overlay Widget in Action
 
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/31410839/105623290-983c3d00-5e3e-11eb-9012-0f0e75fde074.gif)
 
