@@ -11,6 +11,8 @@ class AlphabetScrollView extends StatefulWidget {
       this.alignment = LetterAlignment.right,
       this.isAlphabetsFiltered = true,
       this.overlayWidget,
+      required this.selectedTextStyle,
+      required this.unselectedTextStyle,
       this.itemExtent = 40,
       required this.itemBuilder})
       : super(key: key);
@@ -62,6 +64,31 @@ class AlphabetScrollView extends StatefulWidget {
   /// ```
 
   final Widget Function(String)? overlayWidget;
+
+  /// Text styling for the selected alphabet by which
+  /// we can customize the font color, weight, size etc.
+  /// ```
+  /// selectedTextStyle:
+  ///   TextStyle(
+  ///     fontWeight: FontWeight.bold,
+  ///     color: Colors.black,
+  ///     fontSize: 20
+  ///   )
+
+  final TextStyle selectedTextStyle;
+
+
+  /// Text styling for the unselected alphabet by which
+  /// we can customize the font color, weight, size etc.
+  /// ```
+  /// unselectedTextStyle:
+  ///   TextStyle(
+  ///     fontWeight: FontWeight.normal,
+  ///     color: Colors.grey,
+  ///     fontSize: 18
+  ///   )
+
+  final TextStyle unselectedTextStyle;
 
   /// The itemBuilder must return a non-null widget and the third paramter id specifies
   /// the string mapped to this widget from the ```[list]``` passed.
@@ -170,6 +197,7 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   }
 
   double? maxScroll;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -218,11 +246,14 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                                     horizontal: 12, vertical: 2),
                                 child: Text(
                                   _filteredAlphabets[x].toUpperCase(),
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: selected == x
-                                          ? FontWeight.bold
-                                          : FontWeight.normal),
+                                  style: selected == x
+                                      ? widget.selectedTextStyle
+                                      : widget.unselectedTextStyle,
+                                  // style: TextStyle(
+                                  //     fontSize: 12,
+                                  //     fontWeight: selected == x
+                                  //         ? FontWeight.bold
+                                  //         : FontWeight.normal),
                                 ),
                               ),
                             ),
