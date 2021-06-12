@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
     'Bookman'
   ];
 
-  int selectedIndex;
+  int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,6 +134,16 @@ class _MyHomePageState extends State<MyHomePage> {
               // isAlphabetsFiltered: false,
               alignment: LetterAlignment.right,
               itemExtent: 50,
+              unselectedTextStyle: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.normal,
+                color: Colors.black
+              ),
+              selectedTextStyle: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red
+              ),
               overlayWidget: (value) => Stack(
                 alignment: Alignment.center,
                 children: [
