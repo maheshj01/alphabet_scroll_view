@@ -74,9 +74,9 @@ class AlphabetScrollView extends StatefulWidget {
   ///     color: Colors.black,
   ///     fontSize: 20
   ///   )
+  /// ```
 
   final TextStyle selectedTextStyle;
-
 
   /// Text styling for the unselected alphabet by which
   /// we can customize the font color, weight, size etc.
@@ -87,6 +87,7 @@ class AlphabetScrollView extends StatefulWidget {
   ///     color: Colors.grey,
   ///     fontSize: 18
   ///   )
+  /// ```
 
   final TextStyle unselectedTextStyle;
 
