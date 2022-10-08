@@ -1,4 +1,4 @@
-# [alphabet_scroll_view: ^0.3.1](https://pub.dev/packages/alphabet_scroll_view)
+<!-- # [alphabet_scroll_view: ^0.3.2](https://pub.dev/packages/alphabet_scroll_view) -->
 
 A Scrollable ListView Widget with the dynamic vertical Alphabet List on the Side which you can drag and tap to scroll to the first item starting with that letter in the list.
 
@@ -20,8 +20,7 @@ A Scrollable ListView Widget with the dynamic vertical Alphabet List on the Side
 - Add the dependency
 
 ```
-dependencies:
-  alphabet_scroll_view: ^0.3.1
+flutter pub add alphabet_scroll_view
 ```
 
 - Import the package
@@ -115,7 +114,7 @@ Refer the [complete example here](https://github.com/maheshmnj/alphabet_scroll_v
 
 ### Contributing
 
-You are welcome to contribute to this package,contribution doesnt necessarily mean sending a pull request it could be
+You are welcome to contribute to this package, contribution doesnt necessarily mean sending a pull request it could be
 
 - pointing out bugs/issues
 - requesting a new feature

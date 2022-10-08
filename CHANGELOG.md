@@ -3,6 +3,10 @@
 - Improve overlay widget positioning.
 - renamed the "waterMark" property to "overlayWidget" -->
 
+## [0.3.2] - 7 Oct 2021
+
+- update docs and dependencies
+
 ## [0.3.1] - 1 April 2021
 
 - adds support for alphabet styling
