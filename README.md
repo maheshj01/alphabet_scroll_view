@@ -1,4 +1,4 @@
-<!-- # [alphabet_scroll_view: ^0.3.2](https://pub.dev/packages/alphabet_scroll_view) -->
+# [alphabet_scroll_view: ^0.3.2](https://pub.dev/packages/alphabet_scroll_view)
 
 A Scrollable ListView Widget with the dynamic vertical Alphabet List on the Side which you can drag and tap to scroll to the first item starting with that letter in the list.
 

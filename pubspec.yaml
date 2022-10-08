@@ -1,6 +1,5 @@
 name: alphabet_scroll_view
-description:
-  A Scrollable ListView Widget with the dynamic vertical Alphabet List which
+description: A Scrollable ListView Widget with the dynamic vertical Alphabet List which
   you can drag and tap to scroll to the first item starting with that letter.
 version: 0.3.2
 homepage: https://github.com/maheshmnj/alphabet_scroll_view
@@ -14,9 +13,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  collection: 1.16.0
+  collection: ^1.16.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  pedantic: ">=1.10.0-nullsafety.3 <3.0.0"
+  flutter_lints: 2.0.1
+
 
