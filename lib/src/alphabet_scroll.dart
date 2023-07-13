@@ -3,23 +3,22 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
- 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-              title: 'Alphabet ScrollView Demo',
-              themeMode:
-                ThemeMode.light,
-              darkTheme: ThemeData.dark(
-                useMaterial3: true,),
-              home: const HomePage());
+        title: 'Alphabet ScrollView Demo',
+        themeMode: ThemeMode.light,
+        darkTheme: ThemeData.dark(
+          useMaterial3: true,
+        ),
+        home: const HomePage());
   }
 }
 
@@ -35,18 +34,15 @@ class _HomePage extends State<HomePage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: 600,
-          child: AlphabetScrollView()),
+        Container(height: 600, child: AlphabetScrollView()),
       ],
     );
   }
 }
 
-
 enum LetterAlignment { left, right }
-class AlphabetScrollView extends StatefulWidget {
 
+class AlphabetScrollView extends StatefulWidget {
   // final List<AlphaModel> list;
 
   // final double itemExtent;
@@ -55,7 +51,7 @@ class AlphabetScrollView extends StatefulWidget {
 
   // final bool isAlphabetsFiltered;
 
-  // final Widget Function(String)? overlayWidget;
+  final Widget Function(String)? overlayWidget;
 
   // final TextStyle selectedTextStyle;
 
@@ -66,18 +62,17 @@ class AlphabetScrollView extends StatefulWidget {
 
   // Widget Function(BuildContext, int, String) itemBuilder;
 
-   AlphabetScrollView(
-      {Key? key,
-      // required this.list,
-      // this.alignment = LetterAlignment.right,
-      // this.isAlphabetsFiltered = true,
-      // this.overlayWidget,
-      // required this.selectedTextStyle,
-      // required this.unselectedTextStyle,
-      // this.itemExtent = 40,
-      // required this.itemBuilder
-      })
-      : super(key: key);
+  AlphabetScrollView({
+    Key? key,
+    // required this.list,
+    // this.alignment = LetterAlignment.right,
+    // this.isAlphabetsFiltered = true,
+    this.overlayWidget,
+    // required this.selectedTextStyle,
+    // required this.unselectedTextStyle,
+    // this.itemExtent = 40,
+    // required this.itemBuilder
+  }) : super(key: key);
 
   @override
   State<AlphabetScrollView> createState() => _AlphabetScrollViewState();
@@ -87,46 +82,46 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   @override
   Widget build(BuildContext context) {
     return _AlphabetScrollRenderObject(
-        alphabets,
-      onLetterSelected: (x){
+      alphabets,
+      onLetterSelected: (x) {
         print(x);
       },
+      
     );
   }
 }
 
-
-class _AlphabetScrollRenderObject extends LeafRenderObjectWidget{
+class _AlphabetScrollRenderObject extends SingleChildRenderObjectWidget {
   final List<String> letters;
   final Function(String)? onLetterSelected;
+  final Widget Function(String)? overlayWidget;
 
-  const _AlphabetScrollRenderObject(
-    this.letters,
-    {this.onLetterSelected
-  });
+  const _AlphabetScrollRenderObject(this.letters, {this.onLetterSelected,this.overlayWidget});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return CustomAlphabetListViewRenderBox(
-      letters: letters,
-      onLetterSelected: onLetterSelected,
-    );
+        letters: letters,
+        onLetterChanged: onLetterSelected,
+        overlayWidget:overlayWidget,
+        alignment: LetterAlignment.left);
   }
-
 }
 
-class CustomAlphabetListViewRenderBox extends RenderBox{
-    final List<String> letters;
-  final Function(String)? onLetterSelected;
+class CustomAlphabetListViewRenderBox extends RenderBox {
+  final List<String> letters;
+  final Function(String)? onLetterChanged;
+  LetterAlignment alignment;
+  final Widget Function(String)? overlayWidget;
   /// location for the listItem to be rendered
   List<Offset>? _itemOffsets;
   String? selectedLetter;
+  int selectedIndex = -1;
   CustomAlphabetListViewRenderBox(
-    {
-      required this.letters,
-      this.onLetterSelected
-    }
-  );
+      {required this.letters,
+      this.alignment = LetterAlignment.left,
+      this.overlayWidget,
+      this.onLetterChanged});
 
   @override
   bool hitTestSelf(Offset position) => true;
@@ -134,11 +129,13 @@ class CustomAlphabetListViewRenderBox extends RenderBox{
   @override
   void performLayout() {
     size = constraints.biggest;
+
     /// Will spread the available height equally across letters
+    final dx = alignment == LetterAlignment.left ? 8.0 : size.width - 8.0;
     final itemHeight = size.height / letters.length;
     _itemOffsets = List.generate(
       letters.length,
-      (index) => Offset(0, itemHeight * index),
+      (index) => Offset(dx, itemHeight * index),
     );
   }
 
@@ -146,30 +143,50 @@ class CustomAlphabetListViewRenderBox extends RenderBox{
   void handleEvent(PointerEvent event, HitTestEntry entry) {
     if (event is PointerDownEvent || event is PointerMoveEvent) {
       final position = event.localPosition;
-      final selectedIndex = _itemOffsets?.indexWhere(
-        (offset) => offset.dy <= position.dy && offset.dy + size.height / letters.length > position.dy,
+      final newIndex = _itemOffsets!.indexWhere(
+        (offset) =>
+            offset.dy <= position.dy &&
+            offset.dy + size.height / letters.length > position.dy,
       );
-      if (selectedIndex != -1) {
-        selectedLetter = letters[selectedIndex!];
-        onLetterSelected!(selectedLetter!);
+      if (newIndex != -1) {
+        selectedLetter = letters[newIndex];
+        if (newIndex != selectedIndex) {
+          onLetterChanged!(selectedLetter!);
+        }
+        selectedIndex = newIndex;
+        markNeedsPaint();
       }
     }
   }
 
-   @override
+  @override
   void paint(PaintingContext context, Offset offset) {
-    final textStyle = TextStyle(fontSize: 16, color: Colors.black);
-    final itemHeight = size.height / letters.length;
-
     for (var i = 0; i < letters.length; i++) {
+      bool isSelected = selectedIndex == i;
+      final textStyle = isSelected
+          ? TextStyle(fontSize: 20, color: Colors.green)
+          : TextStyle(fontSize: 16, color: Colors.black);
+      final itemHeight = size.height / letters.length;
       final itemOffset = _itemOffsets![i] + offset;
+
+     
       final itemRect = Rect.fromLTWH(
-        itemOffset.dx,
+        itemOffset.dx + itemHeight /2,
         itemOffset.dy,
-        size.width,
+        itemHeight,
         itemHeight,
       );
-      final textSpan = TextSpan(text: letters[i], style: textStyle);
+       if (isSelected) {
+        final squareRect = itemRect.deflate(4.0);
+        context.canvas.drawRect(
+          squareRect,
+          Paint()
+            ..color = Colors.blue
+            ..style = PaintingStyle.fill
+        );
+      }
+      final textSpan =
+          TextSpan(text: letters[i].toUpperCase(), style: textStyle);
       final textPainter = TextPainter(
         text: textSpan,
         textDirection: TextDirection.ltr,
@@ -177,9 +194,7 @@ class CustomAlphabetListViewRenderBox extends RenderBox{
       textPainter.paint(context.canvas, itemOffset);
     }
   }
-
 }
-
 
 class AlphaModel {
   final String key;
