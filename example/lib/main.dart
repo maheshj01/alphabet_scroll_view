@@ -28,15 +28,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    list.sort();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Alphabet Scroll View Demo')),
       body: AlphabetScrollView(
         list: list,
+        controller: _scrollController,
         physics: BouncingScrollPhysics(),
-        itemBuilder: (BuildContext context, int index, String letter) {
+        itemBuilder: (BuildContext context, int index) {
           return Padding(
+            key: GlobalObjectKey(list[index]),
             padding: const EdgeInsets.only(right: 20),
             child: ListTile(
               title: Text(list[index]),
@@ -45,7 +55,19 @@ class _HomePage extends State<HomePage> {
             ),
           );
         },
-        onLetterChanged: (x) {},
+        onLetterChanged: (x) {
+          final listItem = list.firstWhere((element) => element.startsWith(x),
+              orElse: () => '');
+          if (listItem.isEmpty) return;
+          final index = list.indexOf(listItem);
+          // Scrollable.ensureVisible(GlobalObjectKey(index).currentContext!,
+          //     duration: Duration(seconds: 1), // duration for scrolling time
+          //     alignment: .5, // 0 mean, scroll to the top, 0.5 mean, half
+          //     curve: Curves.easeInOutCubic);
+          // final index = list.firstWhere((element) => element.startsWith(x));
+          _scrollController.animateTo(index * 50.0,
+              duration: Duration(milliseconds: 300), curve: Curves.bounceIn);
+        },
         overlayWidget: (value) => Stack(
           alignment: Alignment.center,
           children: [

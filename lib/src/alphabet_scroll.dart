@@ -25,7 +25,7 @@ class AlphabetScrollView<T> extends StatefulWidget {
   final ScrollController? controller;
 
   /// context, index, letter
-  Widget Function(BuildContext, int, String) itemBuilder;
+  Widget Function(BuildContext, int) itemBuilder;
 
   AlphabetScrollView(
       {Key? key,
@@ -91,22 +91,13 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
             controller: _scrollController,
             itemCount: itemCount,
             itemBuilder: (context, index) {
-              return widget.itemBuilder(
-                  context, index, alphabets[index].toUpperCase());
+              return widget.itemBuilder(context, index);
             },
           ),
         ),
         _AlphabetScrollRenderObject(
           alphabets,
-          onLetterChanged: (letter) {
-            final index = alphabets.indexOf(letter);
-            // if (index != -1) {
-            //   final randomOffset = Random().nextDouble() * itemCount;
-            //   _scrollController.animateTo(randomOffset,
-            //       duration: Duration(milliseconds: 300),
-            //       curve: Curves.bounceIn);
-            // }
-          },
+          onLetterChanged: (letter) => widget.onLetterChanged!(letter),
           overlayWidget: widget.overlayWidget,
         ),
       ],
@@ -118,9 +109,10 @@ class _AlphabetScrollRenderObject extends SingleChildRenderObjectWidget {
   final List<String> letters;
   final Function(String)? onLetterChanged;
   final Widget Function(String)? overlayWidget;
+  final ScrollController? controller;
 
   const _AlphabetScrollRenderObject(this.letters,
-      {this.onLetterChanged, this.overlayWidget});
+      {this.controller, this.onLetterChanged, this.overlayWidget});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -129,6 +121,12 @@ class _AlphabetScrollRenderObject extends SingleChildRenderObjectWidget {
         onLetterChanged: onLetterChanged,
         overlayWidget: overlayWidget,
         alignment: LetterAlignment.left);
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, covariant RenderObject renderObject) {
+    super.updateRenderObject(context, renderObject);
   }
 }
 
@@ -156,7 +154,9 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
     final biggest = constraints.biggest;
     size = Size(20, biggest.height);
 
+    // padding from right
     final dx = size.width - 20.0;
+    // padding from top
     final startOffset = 100.0;
 
     /// Will spread the available height equally across letters
@@ -186,6 +186,10 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
         markNeedsPaint();
       }
     }
+  }
+
+  void drawOverlayWidget(PaintingContext context, Offset offset) {
+    context.paintChild(overlayWidget as RenderObject, offset);
   }
 
   @override
