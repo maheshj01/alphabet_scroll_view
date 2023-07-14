@@ -43,10 +43,10 @@ class AlphabetScrollView<T> extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<AlphabetScrollView> createState() => _AlphabetScrollViewState();
+  State<AlphabetScrollView> createState() => _AlphabetScrollViewState<T>();
 }
 
-class _AlphabetScrollViewState extends State<AlphabetScrollView> {
+class _AlphabetScrollViewState<T> extends State<AlphabetScrollView> {
   ScrollController? _scrollController;
   int itemCount = 0;
   @override
@@ -58,9 +58,11 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
       _scrollController = widget.controller!;
     }
     itemCount = widget.list.length;
+    calculateOffset<T>();
   }
 
   Map<String, double> letterToOffset = {};
+  List<String> alphabets = [];
 
   /// Maps the letter to the offset of the item in the list
   void calculateOffset<T>() {
@@ -68,9 +70,11 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
       final item = (widget.list as List<T>)[i];
       final letter = item.toString().substring(0, 1).toLowerCase();
       if (!letterToOffset.containsKey(letter)) {
+        alphabets.add(letter);
         letterToOffset[letter] = i.toDouble();
       }
     }
+    alphabets.sort();
   }
 
   @override
@@ -233,32 +237,3 @@ class AlphaModel {
 
   AlphaModel(this.key, {this.secondaryKey});
 }
-
-const List<String> alphabets = [
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  'k',
-  'l',
-  'm',
-  'n',
-  'o',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-];

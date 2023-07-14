@@ -40,7 +40,7 @@ class _HomePage extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Alphabet Scroll View Demo')),
-      body: AlphabetScrollView(
+      body: AlphabetScrollView<String>(
         list: list,
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
