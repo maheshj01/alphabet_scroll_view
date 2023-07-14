@@ -1,4 +1,4 @@
-import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
+import 'alphabet_scroll.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -32,10 +32,11 @@ class _HomePage extends State<HomePage> {
 
   @override
   void initState() {
+    list = list.map((String e)=>e.capitalize()!).toList();
     list.sort();
     super.initState();
   }
-
+  List<GlobalObjectKey> _widgetKeys = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,25 +46,31 @@ class _HomePage extends State<HomePage> {
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
+          final wKey = GlobalObjectKey(index);
+          _widgetKeys.add(wKey);
           return Padding(
-            key: GlobalObjectKey(list[index]),
+            key: wKey,
             padding: const EdgeInsets.only(right: 20),
             child: ListTile(
               title: Text(list[index]),
-              subtitle: Text('Secondary text'),
+              subtitle: Text('Secondary text index $index'),
               leading: Icon(Icons.person),
             ),
           );
         },
         onLetterChanged: (x) {
-          final listItem = list.firstWhere((element) => element.startsWith(x),
+          final listItem = list.firstWhere((element) => element.startsWith(x.toUpperCase()),
               orElse: () => '');
-          if (listItem.isEmpty) return;
+          if (listItem.isEmpty){
+            print("listItem not found for $x");
+            return;
+          }
           final index = list.indexOf(listItem);
-          // Scrollable.ensureVisible(GlobalObjectKey(index).currentContext!,
-          //     duration: Duration(seconds: 1), // duration for scrolling time
-          //     alignment: .5, // 0 mean, scroll to the top, 0.5 mean, half
-          //     curve: Curves.easeInOutCubic);
+           
+          Scrollable.ensureVisible(_widgetKeys[index].currentContext!,
+              duration: Duration(seconds: 1), // duration for scrolling time
+              alignment: .5, // 0 mean, scroll to the top, 0.5 mean, half
+              curve: Curves.easeInOutCubic);
           // final index = list.firstWhere((element) => element.startsWith(x));
           _scrollController.animateTo(index * 50.0,
               duration: Duration(milliseconds: 300), curve: Curves.bounceIn);
@@ -96,6 +103,16 @@ class _HomePage extends State<HomePage> {
   }
 }
 
+extension StringExtension on String {
+  String? capitalize() {
+    return this[0].toUpperCase()+ substring(1);
+  }
+
+  String initals() {
+    /// Returns the first letter of each word in the string.
+    return this.split(' ').map((e) => e.capitalize()!.substring(0, 1)).join();
+  }
+}
 List<String> list = [
   'angel',
   'bubbles',
@@ -182,88 +199,3 @@ List<String> list = [
   'Rozalthiric',
   'Bookman'
 ];
-
-//   int selectedIndex = 0;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.title),
-//       ),
-//       body: Column(
-//         children: [
-//           Expanded(
-//             child: AlphabetScrollView(
-//               list: list.map((e) => AlphaModel(e)).toList(),
-//               // isAlphabetsFiltered: false,
-//               alignment: LetterAlignment.right,
-//               itemExtent: 50,
-//               unselectedTextStyle: TextStyle(
-//                 fontSize: 18,
-//                 fontWeight: FontWeight.normal,
-//                 color: Colors.black
-//               ),
-//               selectedTextStyle: TextStyle(
-//                   fontSize: 20,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.red
-//               ),
-//               overlayWidget: (value) => Stack(
-//                 alignment: Alignment.center,
-//                 children: [
-//                   Icon(
-//                     Icons.star,
-//                     size: 50,
-//                     color: Colors.red,
-//                   ),
-//                   Container(
-//                     height: 50,
-//                     width: 50,
-//                     decoration: BoxDecoration(
-//                       shape: BoxShape.circle,
-//                       // color: Theme.of(context).primaryColor,
-//                     ),
-//                     alignment: Alignment.center,
-//                     child: Text(
-//                       '$value'.toUpperCase(),
-//                       style: TextStyle(fontSize: 18, color: Colors.white),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               itemBuilder: (_, k, id) {
-//                 return Padding(
-//                   padding: const EdgeInsets.only(right: 20),
-//                   child: ListTile(
-//                     title: Text('$id'),
-//                     subtitle: Text('Secondary text'),
-//                     leading: Icon(Icons.person),
-//                     trailing: Radio<bool>(
-//                       value: false,
-//                       groupValue: selectedIndex != k,
-//                       onChanged: (value) {
-//                         setState(() {
-//                           selectedIndex = k;
-//                         });
-//                       },
-//                     ),
-//                   ),
-//                 );
-//               },
-//             ),
-//           )
-//         ],
-//       ),
-//       floatingActionButton: Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           FloatingActionButton(
-//             onPressed: _incrementCounter,
-//             tooltip: 'Increment',
-//             child: Icon(Icons.add),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
