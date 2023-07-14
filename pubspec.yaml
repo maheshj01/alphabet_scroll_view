@@ -13,11 +13,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  collection: ^1.17.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lints: ^2.0.1
+  lints: ^2.1.1
 
 
