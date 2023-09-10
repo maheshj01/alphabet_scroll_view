@@ -17,7 +17,7 @@ class AlphabetScrollView<T> extends StatefulWidget {
   // final TextStyle selectedTextStyle;
 
   // final TextStyle unselectedTextStyle;
-  final Function(String)? onLetterChanged;
+  final Function(String, int)? onLetterChanged;
   // /// The itemBuilder must return a non-null widget and the third paramter id specifies
   // /// the string mapped to this widget from the ```[list]``` passed.
   final ScrollPhysics physics;
@@ -25,7 +25,7 @@ class AlphabetScrollView<T> extends StatefulWidget {
   final ScrollController? controller;
 
   /// context, index, letter
-  Widget Function(BuildContext, int) itemBuilder;
+  final Widget Function(BuildContext, int) itemBuilder;
 
   AlphabetScrollView(
       {Key? key,
@@ -58,22 +58,25 @@ class _AlphabetScrollViewState<T> extends State<AlphabetScrollView> {
       _scrollController = widget.controller!;
     }
     itemCount = widget.list.length;
-    calculateOffset<T>();
+    calculateIndexOfLetter<T>();
   }
 
-  Map<String, double> letterToOffset = {};
+  /// Stores the index of the first letter of each alphabet.
+  Map<String, int> indexOf = {};
+
   List<String> alphabets = [];
 
-  /// Maps the letter to the offset of the item in the list
-  void calculateOffset<T>() {
+  /// Calculates the index of the first letter of each alphabet.
+  void calculateIndexOfLetter<T>() {
     for (int i = 0; i < widget.list.length; i++) {
       final item = (widget.list as List<T>)[i];
       final letter = item.toString().substring(0, 1).toLowerCase();
-      if (!letterToOffset.containsKey(letter)) {
+      if (!indexOf.containsKey(letter)) {
         alphabets.add(letter);
-        letterToOffset[letter] = i.toDouble();
+        indexOf[letter] = i;
       }
     }
+    print(indexOf);
     alphabets.sort();
   }
 
@@ -92,6 +95,7 @@ class _AlphabetScrollViewState<T> extends State<AlphabetScrollView> {
         Expanded(
           child: ListView.builder(
             physics: widget.physics,
+            cacheExtent: 999999,
             controller: _scrollController,
             itemCount: itemCount,
             itemBuilder: (context, index) {
@@ -101,7 +105,8 @@ class _AlphabetScrollViewState<T> extends State<AlphabetScrollView> {
         ),
         _AlphabetScrollRenderObject(
           alphabets,
-          onLetterChanged: (letter) => widget.onLetterChanged!(letter),
+          onLetterChanged: (letter) =>
+              widget.onLetterChanged!(letter, indexOf[letter]!),
           overlayWidget: widget.overlayWidget,
         ),
       ],
@@ -140,10 +145,12 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
   LetterAlignment alignment;
   final Widget Function(String)? overlayWidget;
 
-  /// location for the listItem to be rendered
-  List<Offset>? _itemOffsets;
+  List<Offset>? _letterOffset;
   String? selectedLetter;
   int selectedIndex = -1;
+  // padding from top
+  final startOffset = 100.0;
+
   CustomAlphabetListViewRenderBox(
       {required this.letters,
       this.alignment = LetterAlignment.left,
@@ -160,28 +167,46 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
 
     // padding from right
     final dx = size.width - 20.0;
-    // padding from top
-    final startOffset = 100.0;
 
     /// Will spread the available height equally across letters
     final itemHeight = (size.height - (2 * startOffset)) / letters.length;
-    print(itemHeight);
-    _itemOffsets = List.generate(
+    _letterOffset = List.generate(
       letters.length,
       (index) => Offset(dx, itemHeight * index + startOffset),
     );
   }
 
+  void printOffsets() {
+    for (var i = 0; i < _letterOffset!.length; i++) {
+      print('offset $i ${_letterOffset![i]}');
+    }
+  }
+
   @override
   void handleEvent(PointerEvent event, HitTestEntry entry) {
     if (event is PointerDownEvent || event is PointerMoveEvent) {
+      // printOffsets();
       final position = event.localPosition;
-      final newIndex = _itemOffsets!.indexWhere(
-        (offset) =>
-            offset.dy <= position.dy &&
-            offset.dy + size.height / letters.length > position.dy,
-      );
+      // final newIndex = _letterOffset!.indexWhere(
+      //   (offset) =>
+      //       offset.dy <= position.dy &&
+      //       (offset.dy + size.height / letters.length) > position.dy,
+      // );
+
+      final itemHeight = (size.height - (2 * startOffset)) / letters.length;
+      int newIndex = -1;
+      for (var i = 0; i < _letterOffset!.length; i++) {
+        final start = _letterOffset![i];
+        Offset end = Offset(start.dx, start.dy + itemHeight);
+        if (position.dy >= start.dy && position.dy <= end.dy) {
+          newIndex = i;
+          break;
+        }
+      }
+
       if (newIndex != -1) {
+        print('position $position ${_letterOffset![newIndex]}');
+        print('new index $newIndex');
         selectedLetter = letters[newIndex];
         if (newIndex != selectedIndex) {
           onLetterChanged!(selectedLetter!);
@@ -199,12 +224,12 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     for (var i = 0; i < letters.length; i++) {
-      bool isSelected = selectedIndex == i;
+      final isSelected = selectedIndex == i;
       final textStyle = isSelected
           ? TextStyle(fontSize: 20, color: Colors.green)
           : TextStyle(fontSize: 16, color: Colors.black);
       final itemHeight = size.height / letters.length;
-      final itemOffset = _itemOffsets![i] + offset;
+      final itemOffset = _letterOffset![i] + offset;
 
       final itemRect = Rect.fromLTWH(
         itemOffset.dx + itemHeight / 2,
@@ -213,7 +238,7 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
         itemHeight,
       );
       if (isSelected) {
-        final squareRect = itemRect.deflate(4.0);
+        final squareRect = itemRect.deflate(0.0);
         context.canvas.drawRect(
             squareRect,
             Paint()
