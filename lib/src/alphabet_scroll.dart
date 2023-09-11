@@ -76,7 +76,6 @@ class _AlphabetScrollViewState<T> extends State<AlphabetScrollView> {
         indexOf[letter] = i;
       }
     }
-    print(indexOf);
     alphabets.sort();
   }
 
@@ -90,6 +89,7 @@ class _AlphabetScrollViewState<T> extends State<AlphabetScrollView> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Row(
       children: [
         Expanded(
@@ -105,6 +105,7 @@ class _AlphabetScrollViewState<T> extends State<AlphabetScrollView> {
         ),
         _AlphabetScrollRenderObject(
           alphabets,
+          screenSize: size,
           onLetterChanged: (letter) =>
               widget.onLetterChanged!(letter, indexOf[letter]!),
           overlayWidget: widget.overlayWidget,
@@ -119,9 +120,13 @@ class _AlphabetScrollRenderObject extends SingleChildRenderObjectWidget {
   final Function(String)? onLetterChanged;
   final Widget Function(String)? overlayWidget;
   final ScrollController? controller;
+  final Size screenSize;
 
   const _AlphabetScrollRenderObject(this.letters,
-      {this.controller, this.onLetterChanged, this.overlayWidget});
+      {this.controller,
+      this.onLetterChanged,
+      required this.screenSize,
+      this.overlayWidget});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -129,6 +134,7 @@ class _AlphabetScrollRenderObject extends SingleChildRenderObjectWidget {
         letters: letters,
         onLetterChanged: onLetterChanged,
         overlayWidget: overlayWidget,
+        screenSize: screenSize,
         alignment: LetterAlignment.left);
   }
 
@@ -139,14 +145,19 @@ class _AlphabetScrollRenderObject extends SingleChildRenderObjectWidget {
   }
 }
 
-class CustomAlphabetListViewRenderBox extends RenderBox {
+class MyExampleParentData extends ContainerBoxParentData<RenderBox> {}
+
+class CustomAlphabetListViewRenderBox extends RenderBox
+    with ContainerRenderObjectMixin<RenderBox, MyExampleParentData> {
   final List<String> letters;
+  final Size screenSize;
   final Function(String)? onLetterChanged;
   LetterAlignment alignment;
   final Widget Function(String)? overlayWidget;
 
   List<Offset>? _letterOffset;
   String? selectedLetter;
+  bool isPointerDown = false;
   int selectedIndex = -1;
   // padding from top
   final startOffset = 100.0;
@@ -155,6 +166,7 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
       {required this.letters,
       this.alignment = LetterAlignment.left,
       this.overlayWidget,
+      required this.screenSize,
       this.onLetterChanged});
 
   @override
@@ -185,19 +197,14 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
   @override
   void handleEvent(PointerEvent event, HitTestEntry entry) {
     if (event is PointerDownEvent || event is PointerMoveEvent) {
-      // printOffsets();
+      isPointerDown = true;
       final position = event.localPosition;
-      // final newIndex = _letterOffset!.indexWhere(
-      //   (offset) =>
-      //       offset.dy <= position.dy &&
-      //       (offset.dy + size.height / letters.length) > position.dy,
-      // );
-
       final itemHeight = (size.height - (2 * startOffset)) / letters.length;
       int newIndex = -1;
+
       for (var i = 0; i < _letterOffset!.length; i++) {
         final start = _letterOffset![i];
-        Offset end = Offset(start.dx, start.dy + itemHeight);
+        final Offset end = Offset(start.dx, start.dy + itemHeight);
         if (position.dy >= start.dy && position.dy <= end.dy) {
           newIndex = i;
           break;
@@ -205,8 +212,6 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
       }
 
       if (newIndex != -1) {
-        print('position $position ${_letterOffset![newIndex]}');
-        print('new index $newIndex');
         selectedLetter = letters[newIndex];
         if (newIndex != selectedIndex) {
           onLetterChanged!(selectedLetter!);
@@ -215,14 +220,41 @@ class CustomAlphabetListViewRenderBox extends RenderBox {
         markNeedsPaint();
       }
     }
+    if (event is PointerUpEvent) {
+      isPointerDown = false;
+      markNeedsPaint();
+    }
   }
 
-  void drawOverlayWidget(PaintingContext context, Offset offset) {
-    context.paintChild(overlayWidget as RenderObject, offset);
+  void paintOverlay(PaintingContext context, Offset offset, String letter) {
+    final circlePaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill;
+    final width = screenSize.width;
+    final radius = 30.0;
+    final circleOffset =
+        Offset(width - 60, _letterOffset![selectedIndex].dy + radius / 2);
+    context.canvas.drawCircle(circleOffset, radius, circlePaint);
+
+    final textStyle = TextStyle(fontSize: 20, color: Colors.white);
+    final textSpan =
+        TextSpan(text: selectedLetter!.toUpperCase(), style: textStyle);
+    final textPainter = TextPainter(
+        text: textSpan,
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center);
+    textPainter.layout();
+    final textOffset = Offset(circleOffset.dx - textPainter.width / 2,
+        circleOffset.dy - textPainter.height / 2);
+    textPainter.paint(context.canvas, textOffset);
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    if (isPointerDown) {
+      //  paint a circle with the selected letter
+      paintOverlay(context, offset, selectedLetter!);
+    }
     for (var i = 0; i < letters.length; i++) {
       final isSelected = selectedIndex == i;
       final textStyle = isSelected

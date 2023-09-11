@@ -1,4 +1,4 @@
-import 'alphabet_scroll.dart';
+import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -32,24 +32,29 @@ class _HomePage extends State<HomePage> {
 
   @override
   void initState() {
-    list = list.map((String e)=>e.capitalize()!).toList();
+    list = list.map((String e) {
+      return e.capitalize()!;
+    }).toList();
     list.sort();
+    for (int i = 0; i < list.length; i++) {
+      final wKey = GlobalObjectKey(list[i]);
+      _widgetKeys.add(wKey);
+    }
     super.initState();
   }
+
   List<GlobalObjectKey> _widgetKeys = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Alphabet Scroll View Demo')),
+      // appBar: AppBar(title: const Text('Alphabet Scroll View Demo')),
       body: AlphabetScrollView<String>(
         list: list,
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          final wKey = GlobalObjectKey(index);
-          _widgetKeys.add(wKey);
           return Padding(
-            key: wKey,
+            key: _widgetKeys[index],
             padding: const EdgeInsets.only(right: 20),
             child: ListTile(
               title: Text(list[index]),
@@ -58,22 +63,36 @@ class _HomePage extends State<HomePage> {
             ),
           );
         },
-        onLetterChanged: (x) {
-          final listItem = list.firstWhere((element) => element.startsWith(x.toUpperCase()),
+        onLetterChanged: (String x, int k) {
+          print("Scroll to $k for $x");
+          final listItem = list.firstWhere(
+              (element) => element.startsWith(x.toUpperCase()),
               orElse: () => '');
-          if (listItem.isEmpty){
+          if (listItem.isEmpty) {
             print("listItem not found for $x");
             return;
           }
           final index = list.indexOf(listItem);
-           
-          Scrollable.ensureVisible(_widgetKeys[index].currentContext!,
-              duration: Duration(seconds: 1), // duration for scrolling time
-              alignment: .5, // 0 mean, scroll to the top, 0.5 mean, half
-              curve: Curves.easeInOutCubic);
+
+          // find position of widget
+          final RenderBox? renderBox = _widgetKeys[index]
+              .currentContext!
+              .findRenderObject() as RenderBox?;
+          final position = renderBox!.localToGlobal(Offset.zero);
+
+          // animate to position
+          _scrollController.jumpTo(
+            position.dy,
+          );
+
+          // Scrollable.ensureVisible(_widgetKeys[index].currentContext!,
+          //     duration:
+          //         Duration(milliseconds: 300), // duration for scrolling time
+          //     alignment: 0, // 0 mean, scroll to the top, 0.5 mean, half
+          //     curve: Curves.bounceIn);
           // final index = list.firstWhere((element) => element.startsWith(x));
-          _scrollController.animateTo(index * 50.0,
-              duration: Duration(milliseconds: 300), curve: Curves.bounceIn);
+          // _scrollController.animateTo(index * 50.0,
+          //     duration: Duration(milliseconds: 300), curve: Curves.bounceIn);
         },
         overlayWidget: (value) => Stack(
           alignment: Alignment.center,
@@ -105,7 +124,7 @@ class _HomePage extends State<HomePage> {
 
 extension StringExtension on String {
   String? capitalize() {
-    return this[0].toUpperCase()+ substring(1);
+    return this[0].toUpperCase() + substring(1);
   }
 
   String initals() {
@@ -113,6 +132,7 @@ extension StringExtension on String {
     return this.split(' ').map((e) => e.capitalize()!.substring(0, 1)).join();
   }
 }
+
 List<String> list = [
   'angel',
   'bubbles',
