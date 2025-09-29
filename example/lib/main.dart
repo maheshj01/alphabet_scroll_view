@@ -31,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   void _incrementCounter() {}
+  final AlphabetScrollController _controller = AlphabetScrollController();
 
   List<String> list = [
     'angel',
@@ -120,6 +121,13 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   int selectedIndex = 0;
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
               list: list.map((e) => AlphaModel(e)).toList(),
               // isAlphabetsFiltered: false,
               alignment: LetterAlignment.right,
-              itemExtent: 50,
+              controller: _controller,
               unselectedTextStyle: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.normal,
@@ -144,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontWeight: FontWeight.bold,
                   color: Colors.red
               ),
-              overlayWidget: (value) => Stack(
+              overlayBuilder: (context, selectedLetter) => Stack(
                 alignment: Alignment.center,
                 children: [
                   Icon(
@@ -161,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      '$value'.toUpperCase(),
+                      selectedLetter.toUpperCase(),
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
@@ -194,9 +202,15 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: Icon(Icons.add),
+            onPressed: () => _controller.scrollToLetter('s'),
+            tooltip: 'Scroll to S',
+            child: Text('S'),
+          ),
+          SizedBox(width: 16),
+          FloatingActionButton(
+            onPressed: () => _controller.scrollToLetter('m'),
+            tooltip: 'Scroll to M',
+            child: Text('M'),
           ),
         ],
       ),

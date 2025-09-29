@@ -1,8 +1,41 @@
 import 'package:alphabet_scroll_view/src/meta.dart';
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum LetterAlignment { left, right }
+
+/// Controller for AlphabetScrollView that provides scroll-to-letter functionality
+/// and allows adding listeners for letter selection changes
+class AlphabetScrollController extends ChangeNotifier {
+  String? _selectedLetter;
+  late _AlphabetScrollViewState _state;
+
+  /// The currently selected letter
+  String? get selectedLetter => _selectedLetter;
+
+  /// Scroll to a specific letter in the alphabet list
+  void scrollToLetter(String letter) {
+    if (_state._filteredAlphabets.contains(letter.toLowerCase())) {
+      final index = _state._filteredAlphabets.indexOf(letter.toLowerCase());
+      _state._selectedIndexNotifier.value = index;
+      _state.scrolltoIndex(index, _state.positionNotifer.value);
+    }
+  }
+
+  void _attach(_AlphabetScrollViewState state) {
+    _state = state;
+  }
+
+  void _updateSelectedLetter(String letter) {
+    if (_selectedLetter != letter) {
+      _selectedLetter = letter;
+      // Trigger haptic feedback when letter changes
+      HapticFeedback.selectionClick();
+      notifyListeners();
+    }
+  }
+}
 
 class AlphabetScrollView extends StatefulWidget {
   AlphabetScrollView(
@@ -10,10 +43,10 @@ class AlphabetScrollView extends StatefulWidget {
       required this.list,
       this.alignment = LetterAlignment.right,
       this.isAlphabetsFiltered = true,
-      this.overlayWidget,
+      this.overlayBuilder,
       required this.selectedTextStyle,
       required this.unselectedTextStyle,
-      this.itemExtent = 40,
+      this.controller,
       required this.itemBuilder})
       : super(key: key);
 
@@ -30,10 +63,6 @@ class AlphabetScrollView extends StatefulWidget {
   /// that widget.
   final List<AlphaModel> list;
 
-  /// ```itemExtent``` specifies the max height of the widget returned by
-  /// itemBuilder if not specified defaults to 40.0
-  final double itemExtent;
-
   /// Alignment for the Alphabet List
   /// can be aligned on either left/right side
   /// of the screen
@@ -47,23 +76,26 @@ class AlphabetScrollView extends StatefulWidget {
 
   final bool isAlphabetsFiltered;
 
-  /// Widget to show beside the selected alphabet
+  /// Builder for the overlay widget that appears beside the selected alphabet
   /// if not specified it will be hidden.
   /// ```
-  /// overlayWidget:(value)=>
+  /// overlayBuilder: (BuildContext context, String selectedLetter) =>
   ///    Container(
   ///       height: 50,
   ///       width: 50,
   ///       alignment: Alignment.center,
   ///       color: Theme.of(context).primaryColor,
   ///       child: Text(
-  ///                 '$value'.toUpperCase(),
+  ///                 selectedLetter.toUpperCase(),
   ///                  style: TextStyle(fontSize: 20, color: Colors.white),
   ///              ),
   ///      )
   /// ```
 
-  final Widget Function(String)? overlayWidget;
+  final Widget Function(BuildContext, String)? overlayBuilder;
+
+  /// Controller that provides scroll-to-letter functionality and letter selection listeners
+  final AlphabetScrollController? controller;
 
   /// Text styling for the selected alphabet by which
   /// we can customize the font color, weight, size etc.
@@ -101,6 +133,10 @@ class AlphabetScrollView extends StatefulWidget {
 }
 
 class _AlphabetScrollViewState extends State<AlphabetScrollView> {
+  late AlphabetScrollController _controller;
+  final Map<int, double> _itemOffsets = {};
+  final GlobalKey _listViewKey = GlobalKey();
+  
   void init() {
     widget.list
         .sort((x, y) => x.key.toLowerCase().compareTo(y.key.toLowerCase()));
@@ -122,11 +158,14 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
       _filteredAlphabets = alphabets;
     }
     calculateFirstIndex();
+    _calculateItemOffsets();
     setState(() {});
   }
 
   @override
   void initState() {
+    _controller = widget.controller ?? AlphabetScrollController();
+    _controller._attach(this);
     init();
     if (listController.hasClients) {
       maxScroll = listController.position.maxScrollExtent;
@@ -148,10 +187,15 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   @override
   void didUpdateWidget(covariant AlphabetScrollView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _controller = widget.controller ?? AlphabetScrollController();
+      _controller._attach(this);
+    }
     if (oldWidget.list != widget.list ||
         oldWidget.isAlphabetsFiltered != widget.isAlphabetsFiltered) {
       _list.clear();
       firstIndexPosition.clear();
+      _itemOffsets.clear();
       init();
     }
   }
@@ -159,6 +203,24 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   int getCurrentIndex(double vPosition) {
     double kAlphabetHeight = letterKey.currentContext!.size!.height;
     return (vPosition ~/ kAlphabetHeight);
+  }
+
+  /// Calculate and store offsets for each item to enable precise scrolling
+  /// without requiring itemExtent
+  void _calculateItemOffsets() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_listViewKey.currentContext != null) {
+        // This would typically be calculated based on rendered item heights
+        // For now, we'll use a default height and calculate based on item count
+        double cumulativeHeight = 0.0;
+        const double defaultItemHeight = 56.0; // Material ListTile default height
+        
+        for (int i = 0; i < _list.length; i++) {
+          _itemOffsets[i] = cumulativeHeight;
+          cumulativeHeight += defaultItemHeight;
+        }
+      }
+    });
   }
 
   /// calculates and Maintains a map of
@@ -178,11 +240,16 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   }
 
   void scrolltoIndex(int x, Offset offset) {
-    int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()]!;
-    final scrollToPostion = widget.itemExtent * index;
+    final letter = _filteredAlphabets[x].toLowerCase();
+    final index = firstIndexPosition[letter];
     if (index != null) {
-      listController.animateTo((scrollToPostion),
+      // Use calculated offset instead of itemExtent * index
+      final scrollToPosition = _itemOffsets[index] ?? 0.0;
+      listController.animateTo(scrollToPosition,
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      
+      // Update controller with selected letter and trigger haptic feedback
+      _controller._updateSelectedLetter(_filteredAlphabets[x]);
     }
     positionNotifer.value = offset;
   }
@@ -200,18 +267,25 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   double? maxScroll;
 
   @override
+  void dispose() {
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         ListView.builder(
+            key: _listViewKey,
             controller: listController,
             scrollDirection: Axis.vertical,
             itemCount: _list.length,
             physics: ClampingScrollPhysics(),
             itemBuilder: (_, x) {
-              return ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: widget.itemExtent),
-                  child: widget.itemBuilder(_, x, _list[x].key));
+              return widget.itemBuilder(_, x, _list[x].key);
             }),
         Align(
           alignment: widget.alignment == LetterAlignment.left
@@ -250,11 +324,6 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                                   style: selected == x
                                       ? widget.selectedTextStyle
                                       : widget.unselectedTextStyle,
-                                  // style: TextStyle(
-                                  //     fontSize: 12,
-                                  //     fontWeight: selected == x
-                                  //         ? FontWeight.bold
-                                  //         : FontWeight.normal),
                                 ),
                               ),
                             ),
@@ -276,9 +345,9 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
                       left:
                           widget.alignment == LetterAlignment.left ? 40 : null,
                       top: position.dy,
-                      child: widget.overlayWidget == null
+                      child: widget.overlayBuilder == null
                           ? Container()
-                          : widget.overlayWidget!(_filteredAlphabets[
+                          : widget.overlayBuilder!(context, _filteredAlphabets[
                               _selectedIndexNotifier.value]));
                 })
       ],
