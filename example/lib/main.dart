@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
-
 import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -116,16 +117,14 @@ class _MyHomePageState extends State<MyHomePage> {
     'Bootecia',
     'Spuffyffet',
     'Rozalthiric',
-    'Bookman'
+    'Bookman',
   ];
 
   int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: Column(
         children: [
           Expanded(
@@ -137,21 +136,17 @@ class _MyHomePageState extends State<MyHomePage> {
               unselectedTextStyle: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.normal,
-                color: Colors.black
+                color: Colors.black,
               ),
               selectedTextStyle: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
               ),
               overlayWidget: (value) => Stack(
                 alignment: Alignment.center,
                 children: [
-                  Icon(
-                    Icons.star,
-                    size: 50,
-                    color: Colors.red,
-                  ),
+                  Icon(Icons.star, size: 50, color: Colors.red),
                   Container(
                     height: 50,
                     width: 50,
@@ -161,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      '$value'.toUpperCase(),
+                      value.toUpperCase(),
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
@@ -171,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 20),
                   child: ListTile(
-                    title: Text('$id'),
+                    title: Text(id),
                     subtitle: Text('Secondary text'),
                     leading: Icon(Icons.person),
                     trailing: Radio<bool>(
@@ -187,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-          )
+          ),
         ],
       ),
       floatingActionButton: Row(
