@@ -94,7 +94,7 @@ class AlphabetScrollView extends StatefulWidget {
   /// The itemBuilder must return a non-null widget and the third paramter id specifies
   /// the string mapped to this widget from the ```[list]``` passed.
 
-  Widget Function(BuildContext, int, String) itemBuilder;
+  final Widget Function(BuildContext, int, String) itemBuilder;
 
   @override
   _AlphabetScrollViewState createState() => _AlphabetScrollViewState();
@@ -180,10 +180,8 @@ class _AlphabetScrollViewState extends State<AlphabetScrollView> {
   void scrolltoIndex(int x, Offset offset) {
     int index = firstIndexPosition[_filteredAlphabets[x].toLowerCase()]!;
     final scrollToPostion = widget.itemExtent * index;
-    if (index != null) {
-      listController.animateTo((scrollToPostion),
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-    }
+    listController.animateTo((scrollToPostion),
+        duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     positionNotifer.value = offset;
   }
 
